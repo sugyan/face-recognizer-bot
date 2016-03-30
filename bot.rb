@@ -1,4 +1,7 @@
 require 'twitter'
+require 'logger'
+
+logger = Logger.new(STDOUT)
 
 client = Twitter::Streaming::Client.new do |config|
   config.consumer_key        = ENV['TWITTER_CONSUMER_KEY']
@@ -8,12 +11,13 @@ client = Twitter::Streaming::Client.new do |config|
 end
 
 client.user do |object|
+  logger.info('start')
   case object
   when Twitter::Tweet
-    puts 'a tweet!'
+    logger.info(format('tweet: %s', object.id))
   when Twitter::Streaming::Event
-    puts 'a event!'
+    logger.info(format('event: %s', object))
   when Twitter::Streaming::StallWarning
-    warn 'Falling behind!'
+    logger.warn('Falling behind!')
   end
 end
