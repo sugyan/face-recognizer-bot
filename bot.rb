@@ -1,5 +1,9 @@
+require 'base64'
 require 'twitter'
+require 'httpclient'
+require 'json'
 require 'logger'
+require 'rmagick'
 
 logger = Logger.new(STDOUT)
 
@@ -18,15 +22,15 @@ streaming = Twitter::Streaming::Client.new do |config|
 end
 
 user = rest.verify_credentials
-logger.info(format('user @%s', user.screen_name))
+logger.info("user @#{user.screen_name}")
 
 streaming.user do |object|
   case object
   when Twitter::Tweet
-    logger.info(format('tweet: %s', object.uri))
+    logger.info("tweet: #{object.uri}")
 
     unless object.reply? && object.in_reply_to_user_id == user.id
-      logger.info('not reply to me.')
+      logger.info('not reply for this user.')
       next
     end
     unless object.media?
@@ -34,11 +38,22 @@ streaming.user do |object|
       next
     end
 
-    logger.info(object.media.first)
+    begin
+      url = object.media.first.media_url
+      logger.info("media: #{url}")
+      img = Magick::Image.read(url).first
+      b64 = Base64.strict_encode64(img.to_blob { self.format = 'JPG' })
+      img.destroy!
+      body = { 'image' => 'data:image/jpeg;base64,' + b64 }
+      res = HTTPClient.new.post(ENV['RECOGNIZER_ENDPOINT_URL'], body)
+      logger.info(res.content)
+    rescue StandardError => e
+      logger.warn(e)
+    end
   when Twitter::Streaming::Event
-    logger.info(format('event: %s', object))
+    logger.info("event: #{object}")
   when Twitter::Streaming::FriendList
-    logger.info(format('friend list: %s', object))
+    logger.info("friend list: #{object}")
   when Twitter::Streaming::StallWarning
     logger.warn('Falling behind!')
   end

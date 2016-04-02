@@ -17,11 +17,13 @@ GEM
       domain_name (~> 0.5)
     http-form_data (1.0.1)
     http_parser.rb (0.6.0)
+    httpclient (2.7.1)
     json (1.8.3)
     memoizable (0.4.2)
       thread_safe (~> 0.3, >= 0.3.1)
     multipart-post (2.0.0)
     naught (1.1.0)
+    rmagick (2.15.4)
     simple_oauth (0.3.1)
     thread_safe (0.3.5)
     twitter (5.16.0)
@@ -43,6 +45,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  httpclient (~> 2.7)
+  rmagick (~> 2.15)
   twitter (~> 5.16)
 
 BUNDLED WITH
