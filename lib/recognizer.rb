@@ -13,6 +13,7 @@ class Recognizer
   attr_accessor :consumer_key, :consumer_secret, :access_token, :access_token_secret, :recognizer_api
 
   def initialize
+    STDOUT.sync = true
     @logger = Logger.new(STDOUT)
     yield(self) if block_given?
     @rest = Twitter::REST::Client.new do |config|
@@ -67,8 +68,7 @@ class Recognizer
       reply = create_reply(tweet.user.screen_name, img, results['faces'])
       @logger.info(reply)
       medias = reply[:images].map do |image|
-        tmp = Tempfile.new
-        image.format = 'JPG'
+        tmp = Tempfile.new(['', '.jpg'])
         image.write(tmp.path)
         image.destroy!
         @rest.upload(tmp)
