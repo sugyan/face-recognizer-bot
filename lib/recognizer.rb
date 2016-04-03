@@ -31,6 +31,7 @@ class Recognizer
   end
 
   def run
+    @configuration = @rest.configuration
     @user = @rest.verify_credentials
     @logger.info("user @#{@user.screen_name}")
     @streaming.user do |object|
@@ -92,7 +93,7 @@ class Recognizer
       label = face['recognize'].first['label']
       value = face['recognize'].first['value']
       line = format('%d: %s (%s) [%.2f]', i + 1, label['name'], label['description'].split(/\n/).first, value * 100.0)
-      break if texts.join("\n").size + line.size + 1 >= 140
+      break if texts.join("\n").size + line.size + 1 >= 140 - @configuration.short_url_length
       texts << line
       # image
       xs = face['bounding'].map { |v| v['x'] }
