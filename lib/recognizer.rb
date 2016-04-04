@@ -104,6 +104,7 @@ class Recognizer
         canvas
           .image(img)
           .translate(size * 0.5, size * 0.5)
+          .scale(1.0 / 1.2)
           .rotate(-face['angle']['roll'])
           .translate(-(xs.min + xs.max) * 0.5, -(ys.min + ys.max) * 0.5)
       end
