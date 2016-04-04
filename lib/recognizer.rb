@@ -74,7 +74,9 @@ class Recognizer
         image.destroy!
         @rest.upload(tmp)
       end
-      @logger.info(@rest.update(reply[:text], in_reply_to_status: tweet, media_ids: medias.join(',')))
+      options = { in_reply_to_status: tweet }
+      options[:media_ids] = medias.join(',') unless medias.empty?
+      @logger.info(@rest.update(reply[:text], options))
       img.destroy!
     rescue StandardError => e
       @logger.warn(e)
