@@ -99,12 +99,12 @@ class Recognizer
       # image
       xs = face['bounding'].map { |v| v['x'] }
       ys = face['bounding'].map { |v| v['y'] }
-      size = [xs.max - xs.min, ys.max - ys.min].max
-      rvg = Magick::RVG.new(size, size) do |canvas|
+      x_size = xs.max - xs.min
+      y_size = ys.max - ys.min
+      rvg = Magick::RVG.new(x_size * 1.2, y_size * 1.2) do |canvas|
         canvas
           .image(img)
-          .translate(size * 0.5, size * 0.5)
-          .scale(1.0 / 1.2)
+          .translate(x_size * 0.6, y_size * 0.6)
           .rotate(-face['angle']['roll'])
           .translate(-(xs.min + xs.max) * 0.5, -(ys.min + ys.max) * 0.5)
       end
