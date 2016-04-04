@@ -93,7 +93,11 @@ class Recognizer
       # text
       label = face['recognize'].first['label']
       value = face['recognize'].first['value']
-      line = format('%d: %s (%s) [%.2f]', i + 1, label['name'], label['description'].split(/\n/).first, value * 100.0)
+      name = label['name']
+      unless label['description'].empty?
+        name += " (#{label['description'].split(/\n/).first})"
+      end
+      line = format("#{i + 1}: #{name} [%.2f]", value * 100.0)
       break if texts.join("\n").size + line.size + 1 >= 140 - @configuration.short_url_length
       texts << line
       # image
