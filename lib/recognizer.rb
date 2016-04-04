@@ -82,10 +82,11 @@ class Recognizer
   end
 
   def create_reply(screen_name, img, faces)
-    return { text: "@#{screen_name} 顔が検出されませんでした\u{1f60e}", images: [] } if faces.empty?
+    return { text: "@#{screen_name} 顔を検出できませんでした\u{1f61e}", images: [] } if faces.empty?
     recognized = faces.select { |face| face['recognize'].first['label']['id'] }
-    result = recognized.empty? ? "しかしどれも識別できませんでした\u{1f61e}" : format("うち%d件を識別しました\u{1f600}", recognized.size)
-    texts = [format("@#{screen_name} %d件の顔を検出\u{1f610} %s", faces.size, result)]
+    return { text: "@#{screen_name} #{faces.size}件の顔を検出しましたが、1つも識別できませんでした\u{1f61e}", images: [] } if recognized.empty?
+
+    texts = ["@#{screen_name} #{faces.size}件中 #{recognized.size}件の顔を識別しました\u{1f600}"]
     recognized.sort! { |a, b| b['recognize'].first['value'] <=> a['recognize'].first['value'] }
     images = []
     recognized.slice(0, 4).each.with_index do |face, i|
