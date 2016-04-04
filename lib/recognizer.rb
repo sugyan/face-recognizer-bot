@@ -88,7 +88,7 @@ class Recognizer
     texts = [format("@#{screen_name} %d件の顔を検出\u{1f610} %s", faces.size, result)]
     recognized.sort! { |a, b| b['recognize'].first['value'] <=> a['recognize'].first['value'] }
     images = []
-    recognized.each.with_index do |face, i|
+    recognized.slice(0, 4).each.with_index do |face, i|
       # text
       label = face['recognize'].first['label']
       value = face['recognize'].first['value']
