@@ -40,7 +40,7 @@ class Recognizer
         @logger.info("tweet: #{object.uri}")
         process_reply(object)
       when Twitter::Streaming::Event
-        @logger.info("event: [#{object.name}] #{object.source} - #{object.target}")
+        @logger.info("event: [#{object.name}] @#{object.source.screen_name}")
       when Twitter::Streaming::FriendList
         @logger.info("friend list: #{object}")
       when Twitter::Streaming::StallWarning
