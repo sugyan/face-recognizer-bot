@@ -40,7 +40,7 @@ class Recognizer
         @logger.info("tweet: #{object.uri}")
         process_reply(object)
       when Twitter::Streaming::Event
-        @logger.info("event: #{object}")
+        @logger.info("event: [#{object.name}] #{object.source} - #{object.target}")
       when Twitter::Streaming::FriendList
         @logger.info("friend list: #{object}")
       when Twitter::Streaming::StallWarning
@@ -67,6 +67,7 @@ class Recognizer
       results = JSON.parse(HTTPClient.new.post(recognizer_api, body).content)
       @logger.info(results['message'])
       reply = create_reply(tweet.user.screen_name, img, results['faces'])
+      img.destroy!
       @logger.info(reply)
       medias = reply[:images].map do |image|
         tmp = Tempfile.new(['', '.jpg'])
@@ -76,8 +77,8 @@ class Recognizer
       end
       options = { in_reply_to_status: tweet }
       options[:media_ids] = medias.join(',') unless medias.empty?
-      @logger.info(@rest.update(reply[:text], options))
-      img.destroy!
+      updated = @rest.update(reply[:text], options)
+      @logger.info("update: #{updated.uri}")
     rescue StandardError => e
       @logger.warn(e)
     end
