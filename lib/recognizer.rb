@@ -100,22 +100,29 @@ class Recognizer
         name += " (#{label['description'].split(/\n/).first})"
       end
       line = format("#{i + 1}: #{name} [%.2f]", value * 100.0)
-      break if texts.join("\n").size + line.size + 1 >= 140 - @configuration.short_url_length
+      if texts.join("\n").size + line.size + 1 >= 140 - @configuration.short_url_length - 2
+        texts << '他'
+        break
+      end
       texts << line
       # image
-      xs = face['bounding'].map { |v| v['x'] }
-      ys = face['bounding'].map { |v| v['y'] }
-      x_size = xs.max - xs.min
-      y_size = ys.max - ys.min
-      rvg = Magick::RVG.new(x_size * 1.2, y_size * 1.2) do |canvas|
-        canvas
-          .image(img)
-          .translate(x_size * 0.6, y_size * 0.6)
-          .rotate(-face['angle']['roll'])
-          .translate(-(xs.min + xs.max) * 0.5, -(ys.min + ys.max) * 0.5)
-      end
-      images << rvg.draw
+      images << crop_face(img, face)
     end
     { text: texts.join("\n"), images: images }
+  end
+
+  def crop_face(img, face)
+    xs = face['bounding'].map { |v| v['x'] }
+    ys = face['bounding'].map { |v| v['y'] }
+    x_size = xs.max - xs.min
+    y_size = ys.max - ys.min
+    rvg = Magick::RVG.new(x_size * 1.2, y_size * 1.2) do |canvas|
+      canvas
+        .image(img)
+        .translate(x_size * 0.6, y_size * 0.6)
+        .rotate(-face['angle']['roll'])
+        .translate(-(xs.min + xs.max) * 0.5, -(ys.min + ys.max) * 0.5)
+    end
+    rvg.draw
   end
 end
