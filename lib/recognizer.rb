@@ -88,7 +88,9 @@ class Recognizer
     recognized = faces.select { |face| face['recognize'].first['label']['id'] }
     return { text: "@#{screen_name} #{faces.size}件の顔を検出しましたが、1つも識別できませんでした\u{1f61e}", images: [] } if recognized.empty?
 
-    texts = ["@#{screen_name} #{faces.size}件中 #{recognized.size}件の顔を識別しました\u{1f600}"]
+    message = "#{recognized.size}件の顔を識別しました\u{1f600}"
+    message = "#{faces.size}件中 " + message if faces.size > recognized.size
+    texts = ["@#{screen_name} #{message}"]
     recognized.sort! { |a, b| b['recognize'].first['value'] <=> a['recognize'].first['value'] }
     images = []
     recognized.slice(0, 4).each.with_index do |face, i|
