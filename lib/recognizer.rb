@@ -77,8 +77,7 @@ class Recognizer
       end
       options = { in_reply_to_status: tweet }
       options[:media_ids] = medias.join(',') unless medias.empty?
-      updated = @rest.update(reply[:text], options)
-      @logger.info("update: #{updated.uri}")
+      @rest.update(reply[:text], options)
     rescue StandardError => e
       @logger.warn(e)
     end
