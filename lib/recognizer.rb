@@ -40,7 +40,7 @@ class Recognizer
         @logger.info("tweet: #{object.uri}")
         process_reply(object)
       when Twitter::Streaming::Event
-        @logger.info("event: [#{object.name}] #{object.source} - #{object.target}")
+        @logger.info("event: [#{object.name}] @#{object.source.screen_name}")
       when Twitter::Streaming::FriendList
         @logger.info("friend list: #{object}")
       when Twitter::Streaming::StallWarning
@@ -77,8 +77,7 @@ class Recognizer
       end
       options = { in_reply_to_status: tweet }
       options[:media_ids] = medias.join(',') unless medias.empty?
-      updated = @rest.update(reply[:text], options)
-      @logger.info("update: #{updated.uri}")
+      @rest.update(reply[:text], options)
     rescue StandardError => e
       @logger.warn(e)
     end
@@ -89,7 +88,9 @@ class Recognizer
     recognized = faces.select { |face| face['recognize'].first['label']['id'] }
     return { text: "@#{screen_name} #{faces.size}件の顔を検出しましたが、1つも識別できませんでした\u{1f61e}", images: [] } if recognized.empty?
 
-    texts = ["@#{screen_name} #{faces.size}件中 #{recognized.size}件の顔を識別しました\u{1f600}"]
+    message = "#{recognized.size}件の顔を識別しました\u{1f600}"
+    message = "#{faces.size}件中 " + message if faces.size > recognized.size
+    texts = ["@#{screen_name} #{message}"]
     recognized.sort! { |a, b| b['recognize'].first['value'] <=> a['recognize'].first['value'] }
     images = []
     recognized.slice(0, 4).each.with_index do |face, i|
@@ -101,22 +102,29 @@ class Recognizer
         name += " (#{label['description'].split(/\r?\n/).first})"
       end
       line = format("#{i + 1}: #{name} [%.2f]", value * 100.0)
-      break if texts.join("\n").size + line.size + 1 >= 140 - @configuration.short_url_length
+      if texts.join("\n").size + line.size + 1 >= 140 - @configuration.short_url_length - 2
+        texts << '他'
+        break
+      end
       texts << line
       # image
-      xs = face['bounding'].map { |v| v['x'] }
-      ys = face['bounding'].map { |v| v['y'] }
-      x_size = xs.max - xs.min
-      y_size = ys.max - ys.min
-      rvg = Magick::RVG.new(x_size * 1.2, y_size * 1.2) do |canvas|
-        canvas
-          .image(img)
-          .translate(x_size * 0.6, y_size * 0.6)
-          .rotate(-face['angle']['roll'])
-          .translate(-(xs.min + xs.max) * 0.5, -(ys.min + ys.max) * 0.5)
-      end
-      images << rvg.draw
+      images << crop_face(img, face)
     end
     { text: texts.join("\n"), images: images }
+  end
+
+  def crop_face(img, face)
+    xs = face['bounding'].map { |v| v['x'] }
+    ys = face['bounding'].map { |v| v['y'] }
+    x_size = xs.max - xs.min
+    y_size = ys.max - ys.min
+    rvg = Magick::RVG.new(x_size * 1.2, y_size * 1.2) do |canvas|
+      canvas
+        .image(img)
+        .translate(x_size * 0.6, y_size * 0.6)
+        .rotate(-face['angle']['roll'])
+        .translate(-(xs.min + xs.max) * 0.5, -(ys.min + ys.max) * 0.5)
+    end
+    rvg.draw
   end
 end
