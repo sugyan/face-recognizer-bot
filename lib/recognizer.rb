@@ -98,7 +98,7 @@ class Recognizer
       value = face['recognize'].first['value']
       name = label['name']
       unless label['description'].empty?
-        name += " (#{label['description'].split(/\n/).first})"
+        name += " (#{label['description'].split(/\r?\n/).first})"
       end
       line = format("#{i + 1}: #{name} [%.2f]", value * 100.0)
       break if texts.join("\n").size + line.size + 1 >= 140 - @configuration.short_url_length
