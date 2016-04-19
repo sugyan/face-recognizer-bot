@@ -37,7 +37,6 @@ class Recognizer
     @streaming.user do |object|
       case object
       when Twitter::Tweet
-        @logger.info("tweet: #{object.uri}")
         process_reply(object)
       when Twitter::Streaming::Event
         @logger.info("event: [#{object.name}] @#{object.source.screen_name}")
@@ -53,6 +52,7 @@ class Recognizer
 
   def process_reply(tweet)
     return unless tweet.reply? && tweet.in_reply_to_user_id == @user.id
+    @logger.info("tweet: #{object.uri}")
     unless tweet.media?
       @logger.info('no media.')
       return
@@ -77,7 +77,8 @@ class Recognizer
       end
       options = { in_reply_to_status: tweet }
       options[:media_ids] = medias.join(',') unless medias.empty?
-      @rest.update(reply[:text], options)
+      updated = @rest.update(reply[:text], options)
+      @logger.info("replied: #{updated.uri}")
     rescue StandardError => e
       @logger.warn(e)
     end
