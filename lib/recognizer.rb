@@ -52,7 +52,7 @@ class Recognizer
 
   def process_reply(tweet)
     return unless tweet.reply? && tweet.in_reply_to_user_id == @user.id
-    @logger.info("tweet: #{object.uri}")
+    @logger.info("tweet: #{tweet.uri}")
     unless tweet.media?
       @logger.info('no media.')
       return
