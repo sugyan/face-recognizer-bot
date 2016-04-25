@@ -65,13 +65,9 @@ class Recognizer
       results = JSON.parse(HTTPClient.new.post(recognizer_api, body).content)
       @logger.info(results['message'])
       reply = create_reply(tweet.user.screen_name, img, results['faces'])
-      img.destroy!
       @logger.info(reply)
       medias = reply[:images].map do |image|
-        tmp = Tempfile.new(['', '.jpg'])
-        image.write(tmp.path)
-        image.destroy!
-        @rest.upload(tmp)
+        @rest.upload(image.path)
       end
       options = { in_reply_to_status: tweet }
       options[:media_ids] = medias.join(',') unless medias.empty?
@@ -92,14 +88,14 @@ class Recognizer
     texts = ["@#{screen_name} #{message}"]
     recognized.sort! { |a, b| b['recognize'].first['value'] <=> a['recognize'].first['value'] }
     images = []
+    prev = nil
     recognized.slice(0, 4).each.with_index do |face, i|
       # text
-      label = face['recognize'].first['label']
       value = face['recognize'].first['value']
-      name = label['name']
-      unless label['description'].empty?
-        name += " (#{label['description'].split(/\r?\n/).first})"
-      end
+      desc = face['recognize'].first['label']['description'].split(/\r?\n/).first
+      name = face['recognize'].first['label']['name']
+      name += " (#{desc == prev ? '同上' : desc})" if desc
+      prev = desc
       line = format("#{i + 1}: #{name} [%.2f]", value * 100.0)
       if texts.join("\n").size + line.size + 1 >= 140 - @configuration.short_url_length - 2
         texts << '他'
