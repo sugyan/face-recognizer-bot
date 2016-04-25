@@ -3,8 +3,7 @@ require 'base64'
 require 'httpclient'
 require 'json'
 require 'logger'
-require 'rmagick'
-require 'rvg/rvg'
+require 'mini_magick'
 require 'tempfile'
 require 'twitter'
 
@@ -61,9 +60,8 @@ class Recognizer
     begin
       url = tweet.media.first.media_url
       @logger.info("media: #{url}")
-      img = Magick::Image.read(url).first
-      b64 = Base64.strict_encode64(img.to_blob { self.format = 'JPG' })
-      body = { 'image' => 'data:image/jpeg;base64,' + b64 }
+      img = MiniMagick::Image.open(url)
+      body = { 'image' => "data:image/jpeg;base64,#{Base64.strict_encode64(img.to_blob)}" }
       results = JSON.parse(HTTPClient.new.post(recognizer_api, body).content)
       @logger.info(results['message'])
       reply = create_reply(tweet.user.screen_name, img, results['faces'])
@@ -119,13 +117,17 @@ class Recognizer
     ys = face['bounding'].map { |v| v['y'] }
     x_size = xs.max - xs.min
     y_size = ys.max - ys.min
-    rvg = Magick::RVG.new(x_size * 1.2, y_size * 1.2) do |canvas|
-      canvas
-        .image(img)
-        .translate(x_size * 0.6, y_size * 0.6)
-        .rotate(-face['angle']['roll'])
-        .translate(-(xs.min + xs.max) * 0.5, -(ys.min + ys.max) * 0.5)
+    srt = [
+      "#{(xs.min + xs.max) * 0.5},#{(ys.min + ys.max) * 0.5}",
+      1.0,
+      -face['angle']['roll'],
+      "#{x_size * 0.6},#{y_size * 0.6}"
+    ].join(' ')
+    MiniMagick::Image.open(img.path).mogrify do |convert|
+      convert.background('black')
+      convert.virtual_pixel('background')
+      convert.distort(:SRT, srt)
+      convert.crop("#{x_size * 1.2}x#{y_size * 1.2}+0+0")
     end
-    rvg.draw
   end
 end
