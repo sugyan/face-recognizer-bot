@@ -96,7 +96,7 @@ class Recognizer
       name = face['recognize'].first['label']['name']
       name += " (#{desc == prev ? '同上' : desc})" if desc
       prev = desc
-      line = format("#{i + 1}: #{name} [%.2f]", value * 100.0)
+      line = format("#{i + 1}: %s [%.2f]", name, value * 100.0)
       if texts.join("\n").size + line.size + 1 >= 140 - @configuration.short_url_length - 2
         texts << '他'
         break
