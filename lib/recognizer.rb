@@ -67,7 +67,7 @@ class Recognizer
       reply = create_reply(tweet.user.screen_name, img, results['faces'])
       @logger.info(reply)
       medias = reply[:images].map do |image|
-        @rest.upload(image.tempfile)
+        @rest.upload(image.tempfile.open)
       end
       options = { in_reply_to_status: tweet }
       options[:media_ids] = medias.join(',') unless medias.empty?
