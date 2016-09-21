@@ -30,7 +30,6 @@ class Recognizer
   end
 
   def run
-    @configuration = @rest.configuration
     @user = @rest.verify_credentials
     @logger.info("user @#{@user.screen_name}")
     @streaming.user do |object|
@@ -97,7 +96,7 @@ class Recognizer
       name += " (#{desc == prev ? '同上' : desc})" if desc
       prev = desc
       line = format("#{i + 1}: %s [%.2f]", name, value * 100.0)
-      if texts.join("\n").size + line.size + 1 >= 140 - @configuration.short_url_length - 2
+      if texts.join("\n").size + line.size + 1 >= 140 - 2
         texts << '他'
         break
       end
