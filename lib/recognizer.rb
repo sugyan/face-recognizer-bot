@@ -99,11 +99,11 @@ class Recognizer
     message = "#{recognized.size}件の顔を識別しました\u{1f600}"
     message = "#{faces.size}件中 " + message if faces.size > recognized.size
 
-    recognized_result(message, recognized, img)
+    recognized_result("@#{screen_name} #{message}", recognized, img)
   end
 
   def recognized_result(message, recognized, img)
-    texts = ["@#{screen_name} #{message}"]
+    texts = [message]
     recognized.sort! { |a, b| b['recognize'].first['value'] <=> a['recognize'].first['value'] }
     images = []
     prev = nil
