@@ -1,4 +1,5 @@
 # coding: utf-8
+# frozen_string_literal: true
 require 'base64'
 require 'httpclient'
 require 'json'
@@ -78,12 +79,30 @@ class Recognizer
   end
 
   def create_reply(screen_name, img, faces)
-    return { text: "@#{screen_name} 顔を検出できませんでした\u{1f61e}", images: [] } if faces.empty?
-    recognized = faces.select { |face| face['recognize'].first['label']['id'] }
-    return { text: "@#{screen_name} #{faces.size}件の顔を検出しましたが、1つも識別できませんでした\u{1f61e}", images: [] } if recognized.empty?
+    if faces.empty?
+      return {
+        text: "@#{screen_name} 顔を検出できませんでした\u{1f61e}",
+        images: []
+      }
+    end
+    recognized = faces.select do |face|
+      top = face['recognize'].first
+      top['label']['id'] && top['value'] > 0.5
+    end
+    if recognized.empty?
+      return {
+        text: "@#{screen_name} #{faces.size}件の顔を検出しましたが、どれも識別対象の人物ではなさそうです\u{1f61e}",
+        images: []
+      }
+    end
 
     message = "#{recognized.size}件の顔を識別しました\u{1f600}"
     message = "#{faces.size}件中 " + message if faces.size > recognized.size
+
+    recognized_result(message, recognized, img)
+  end
+
+  def recognized_result(message, recognized, img)
     texts = ["@#{screen_name} #{message}"]
     recognized.sort! { |a, b| b['recognize'].first['value'] <=> a['recognize'].first['value'] }
     images = []
