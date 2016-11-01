@@ -91,7 +91,7 @@ class Recognizer
     end
     if recognized.empty?
       return {
-        text: "@#{screen_name} #{faces.size}件の顔を検出しましたが、どれも識別対象の人物ではなさそうです\u{1f61e}",
+        text: "@#{screen_name} #{faces.size}件の顔を検出しましたが、識別対象の人物ではなさそうです\u{1f61e}",
         images: []
       }
     end
