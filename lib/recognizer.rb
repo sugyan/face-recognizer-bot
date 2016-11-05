@@ -50,8 +50,8 @@ class Recognizer
 
   def recognize(url)
     auth_headers = {
-      :'X-User-Email' => recognizer_auth_email,
-      :'X-User-Token' => recognizer_auth_token
+      'X-User-Email': recognizer_auth_email,
+      'X-User-Token': recognizer_auth_token
     }
     res = HTTPClient.new.get(recognizer_api, { image_url: url }, auth_headers)
     JSON.parse(res.content)
@@ -72,6 +72,7 @@ class Recognizer
       @logger.info("media: #{url}")
       results = recognize(url)
       @logger.info(results['message'])
+      img = MiniMagick::Image.open(url)
       reply = create_reply(tweet.user.screen_name, img, results['faces'])
       @logger.info(reply)
       medias = reply[:images].map do |image|
