@@ -9,7 +9,8 @@ require 'twitter'
 
 # recognizer bot class
 class Recognizer
-  attr_accessor :consumer_key, :consumer_secret, :access_token, :access_token_secret, :recognizer_api
+  attr_accessor :consumer_key, :consumer_secret, :access_token, :access_token_secret,
+                :recognizer_api, :recognizer_auth_email, :recognizer_auth_token
 
   def initialize
     STDOUT.sync = true
@@ -46,6 +47,15 @@ class Recognizer
     end
   end
 
+  def recognize(url)
+    auth_headers = {
+      :'X-User-Email' => recognizer_auth_email,
+      :'X-User-Token' => recognizer_auth_token
+    }
+    res = HTTPClient.new.get(recognizer_api, { image_url: url }, auth_headers)
+    JSON.parse(res.content)
+  end
+
   private
 
   def process_reply(tweet)
@@ -59,9 +69,7 @@ class Recognizer
     begin
       url = tweet.media.first.media_url
       @logger.info("media: #{url}")
-      img = MiniMagick::Image.open(url)
-      body = { 'image' => "data:image/jpeg;base64,#{Base64.strict_encode64(img.to_blob)}" }
-      results = JSON.parse(HTTPClient.new.post(recognizer_api, body).content)
+      results = recognize(url)
       @logger.info(results['message'])
       reply = create_reply(tweet.user.screen_name, img, results['faces'])
       @logger.info(reply)

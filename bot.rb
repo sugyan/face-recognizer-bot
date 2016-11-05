@@ -1,10 +1,12 @@
 require_relative './lib/recognizer'
 
 bot = Recognizer.new do |config|
-  config.consumer_key        = ENV['TWITTER_CONSUMER_KEY']
-  config.consumer_secret     = ENV['TWITTER_CONSUMER_SECRET']
-  config.access_token        = ENV['TWITTER_ACCESS_TOKEN']
-  config.access_token_secret = ENV['TWITTER_ACCESS_SECRET']
-  config.recognizer_api      = ENV['RECOGNIZER_ENDPOINT_URL']
+  config.consumer_key          = ENV['TWITTER_CONSUMER_KEY']
+  config.consumer_secret       = ENV['TWITTER_CONSUMER_SECRET']
+  config.access_token          = ENV['TWITTER_ACCESS_TOKEN']
+  config.access_token_secret   = ENV['TWITTER_ACCESS_SECRET']
+  config.recognizer_api        = ENV['RECOGNIZER_ENDPOINT_URL']
+  config.recognizer_auth_email = ENV['RECOGNIZER_AUTH_EMAIL']
+  config.recognizer_auth_token = ENV['RECOGNIZER_AUTH_TOKEN']
 end
 bot.run
