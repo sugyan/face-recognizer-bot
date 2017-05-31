@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
-ruby '2.3.1'
+ruby '2.4.1'
 
-gem 'twitter', '~> 5.16'
 gem 'httpclient', '~> 2.7'
 gem 'mini_magick', '~> 4.5'
+gem 'twitter', '~> 5.16'

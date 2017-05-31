@@ -1,9 +1,10 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.4.0)
+    addressable (2.5.1)
+      public_suffix (~> 2.0, >= 2.0.2)
     buftok (0.2.0)
-    domain_name (0.5.20161021)
+    domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
     equalizer (0.0.10)
     faraday (0.9.2)
@@ -15,18 +16,19 @@ GEM
       http_parser.rb (~> 0.6.0)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
-    http-form_data (1.0.1)
+    http-form_data (1.0.3)
     http_parser.rb (0.6.0)
-    httpclient (2.8.2.4)
-    json (1.8.3)
+    httpclient (2.8.3)
+    json (1.8.6)
     memoizable (0.4.2)
       thread_safe (~> 0.3, >= 0.3.1)
-    mini_magick (4.5.1)
+    mini_magick (4.7.0)
     multipart-post (2.0.0)
     naught (1.1.0)
+    public_suffix (2.0.5)
     simple_oauth (0.3.1)
-    thread_safe (0.3.5)
-    twitter (5.16.0)
+    thread_safe (0.3.6)
+    twitter (5.17.0)
       addressable (~> 2.3)
       buftok (~> 0.2.0)
       equalizer (= 0.0.10)
@@ -39,7 +41,7 @@ GEM
       simple_oauth (~> 0.3.0)
     unf (0.1.4)
       unf_ext
-    unf_ext (0.0.7.2)
+    unf_ext (0.0.7.4)
 
 PLATFORMS
   ruby
@@ -50,7 +52,7 @@ DEPENDENCIES
   twitter (~> 5.16)
 
 RUBY VERSION
-   ruby 2.3.1p112
+   ruby 2.4.1p111
 
 BUNDLED WITH
-   1.13.1
+   1.14.6
